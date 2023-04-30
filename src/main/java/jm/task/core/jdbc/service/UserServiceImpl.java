@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
 
     public List<User> getAllUsers() {
         List<User> allUsers = userDao.getAllUsers();
-        allUsers.stream().forEach(System.out::println);
+        allUsers.forEach(System.out::println);
         return allUsers;
     }
 
