@@ -4,27 +4,44 @@ import jm.task.core.jdbc.dao.UserDao;
 import jm.task.core.jdbc.dao.UserDaoJDBCImpl;
 import jm.task.core.jdbc.model.User;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class UserServiceImpl implements UserService {
 
-    UserDao userDao = new UserDaoJDBCImpl();
+    private UserDao userDao = new UserDaoJDBCImpl();
 
     public void createUsersTable() {
-        userDao.createUsersTable();
+        try {
+            userDao.createUsersTable();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void dropUsersTable() {
-        userDao.dropUsersTable();
+        try {
+            userDao.dropUsersTable();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        userDao.saveUser(name, lastName, age);
+        try {
+            userDao.saveUser(name, lastName, age);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         System.out.printf("User с именем – %s добавлен в базу данных \n", name);
     }
 
     public void removeUserById(long id) {
-        userDao.removeUserById(id);
+        try {
+            userDao.removeUserById(id);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public List<User> getAllUsers() {
@@ -34,6 +51,10 @@ public class UserServiceImpl implements UserService {
     }
 
     public void cleanUsersTable() {
-        userDao.cleanUsersTable();
+        try {
+            userDao.cleanUsersTable();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
