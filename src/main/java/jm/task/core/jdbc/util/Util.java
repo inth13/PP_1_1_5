@@ -11,7 +11,11 @@ public class Util {
     private static final String user = "root";
     private static final String password = "root";
 
-    public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(url, user, password);
+    public static Connection getConnection() {
+        try {
+            return DriverManager.getConnection(url, user, password);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

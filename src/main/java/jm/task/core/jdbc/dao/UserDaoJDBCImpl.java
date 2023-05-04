@@ -1,3 +1,7 @@
+//Обработка всех исключений, связанных с работой с базой данных должна находиться в dao
+//возраст должен быть в типе байт
+//Statement, Connection - автоклозабл - используй трай с ресурсами
+
 package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
@@ -12,12 +16,13 @@ public class UserDaoJDBCImpl implements UserDao {
 
     }
 
-    public void createUsersTable() throws SQLException {
-        Connection connection = null;
-        Statement statement = null;
-        try {
-            connection = Util.getConnection();
-            statement = connection.createStatement();
+    /**
+     * Connection вынесен из блока try что бы была возможность использовать Connection.rollback() в блоке catch
+     */
+    public void createUsersTable() {
+
+        Connection connection = Util.getConnection();
+        try (Statement statement = connection.createStatement()) {
             String sqlCreateTableUser = """
                     create table if not exists user
                     (
@@ -31,55 +36,49 @@ public class UserDaoJDBCImpl implements UserDao {
             statement.executeUpdate(sqlCreateTableUser);
             connection.commit();
         } catch (Exception e) {
-            if (connection != null) {
+            try {
                 connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
             }
-            throw e;
         } finally {
-            if (connection != null) {
+            try {
                 connection.close();
-            }
-            if (statement != null) {
-                statement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
         }
     }
 
-    public void dropUsersTable() throws SQLException {
-        Connection connection = null;
-        Statement statement = null;
-
-        try {
-            connection = Util.getConnection();
-            statement = connection.createStatement();
+    public void dropUsersTable() {
+        Connection connection = Util.getConnection();
+        try (Statement statement = connection.createStatement()) {
 
             String sqlDropTableUser = "drop table if exists user";
 
             connection.setAutoCommit(false);
             statement.executeUpdate(sqlDropTableUser);
             connection.commit();
-        } catch (Exception e) {
-            if (connection != null) {
+        } catch (SQLException e) {
+            try {
                 connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
             }
-            throw e;
         } finally {
-            if (connection != null) {
+            try {
                 connection.close();
-            }
-            if (statement != null) {
-                statement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
         }
     }
 
-    public void saveUser(String name, String lastName, byte age) throws SQLException {
+    public void saveUser(String name, String lastName, byte age) {
+        Connection connection = Util.getConnection();
         String sqlInsertUser = "insert into user (name, lastName, age) values (?,?,?)";
-        Connection connection = null;
-        PreparedStatement preparedStatementInsertUser = null;
-        try {
-            connection = Util.getConnection();
-            preparedStatementInsertUser = connection.prepareStatement(sqlInsertUser);
+
+        try (PreparedStatement preparedStatementInsertUser = connection.prepareStatement(sqlInsertUser)) {
             preparedStatementInsertUser.setString(1, name);
             preparedStatementInsertUser.setString(2, lastName);
             preparedStatementInsertUser.setByte(3, age);
@@ -87,51 +86,54 @@ public class UserDaoJDBCImpl implements UserDao {
             connection.setAutoCommit(false);
             preparedStatementInsertUser.executeUpdate();
             connection.commit();
-        } catch (Exception e) {
-            if (connection != null) {
+            System.out.printf("User с именем – %s добавлен в базу данных \n", name);
+        } catch (SQLException e) {
+            try {
                 connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
             }
-            throw e;
         } finally {
-            if (connection != null) {
+            try {
                 connection.close();
-            }
-            if (preparedStatementInsertUser != null) {
-                preparedStatementInsertUser.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
         }
     }
 
-    public void removeUserById(long id) throws SQLException {
+    public void removeUserById(long id) {
+        Connection connection = Util.getConnection();
         String sqlRemoveUserById = "delete from user where id = ?";
-        Connection connection = null;
-        PreparedStatement deleteUserPrepareStatement = null;
-        try {
-            connection = Util.getConnection();
+        try (PreparedStatement deleteUserPrepareStatement = connection.prepareStatement(sqlRemoveUserById)) {
             connection.setAutoCommit(false);
-            deleteUserPrepareStatement = connection.prepareStatement(sqlRemoveUserById);
             deleteUserPrepareStatement.setLong(1, id);
             deleteUserPrepareStatement.executeUpdate();
             connection.commit();
-        } catch (Exception e) {
-            if (connection != null) {
+        } catch (SQLException e) {
+            try {
                 connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
             }
-            throw e;
         } finally {
-            if (connection != null) {
+            try {
                 connection.close();
-            }
-            if (deleteUserPrepareStatement != null) {
-                deleteUserPrepareStatement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
         }
     }
 
+    /*
+     * Здесь не вызывается rollback() поэтому Connection и Statement помещаю в try с ресурсами
+     *
+     *
+     * */
     public List<User> getAllUsers() {
         List<User> result = new ArrayList<>();
-        try (Connection connection = Util.getConnection(); Statement statement = connection.createStatement()) {
 
+        try (Connection connection = Util.getConnection(); Statement statement = connection.createStatement()) {
             String sqlGetAllUsers = "select name, lastName, age from user";
             ResultSet resultSet = statement.executeQuery(sqlGetAllUsers);
 
@@ -148,27 +150,24 @@ public class UserDaoJDBCImpl implements UserDao {
         return result;
     }
 
-    public void cleanUsersTable() throws SQLException {
-        Connection connection = null;
-        Statement statement = null;
-        try {
-            connection = Util.getConnection();
-            statement = connection.createStatement();
+    public void cleanUsersTable() {
+        Connection connection = Util.getConnection();
+        try (Statement statement = connection.createStatement()) {
             String sqlCleanUserTable = "delete from user";
             connection.setAutoCommit(false);
             statement.executeUpdate(sqlCleanUserTable);
             connection.commit();
         } catch (Exception e) {
-            if (connection != null) {
+            try {
                 connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
             }
-            throw e;
         } finally {
-            if (connection != null) {
+            try {
                 connection.close();
-            }
-            if (statement != null) {
-                statement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
         }
     }
