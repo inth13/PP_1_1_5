@@ -8,10 +8,17 @@ public class Main {
 
         UserService userService = new UserServiceImpl();
         userService.createUsersTable();
-        userService.saveUser("Gordon", "Freeman", (byte) 42);
-        userService.saveUser("Alyx", "Vance", (byte) 28);
-        userService.saveUser("Eli", "Vance", (byte) 58);
-        userService.saveUser("Isaac", "Kleiner", (byte) 71);
+
+        byte age;
+
+        age = 42;
+        userService.saveUser("Gordon", "Freeman", age);
+        age = 28;
+        userService.saveUser("Alyx", "Vance", age);
+        age = 58;
+        userService.saveUser("Eli", "Vance", age);
+        age = 71;
+        userService.saveUser("Isaac", "Kleiner", age);
 
         userService.getAllUsers();
         userService.cleanUsersTable();
