@@ -111,7 +111,6 @@ public class UserDaoJDBCImpl implements UserDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        result.forEach(System.out::println);
         return result;
     }
 
