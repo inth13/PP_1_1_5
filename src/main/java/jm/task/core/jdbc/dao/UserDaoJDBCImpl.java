@@ -57,7 +57,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        String sqlInsertUser = "insert into user (name, lastName, age) values (?,?,?)";
+        String sqlInsertUser = "insert into users (name, lastName, age) values (?,?,?)";
         try (Connection connection = Util.getConnection()) {
             try (PreparedStatement preparedStatementInsertUser = connection.prepareStatement(sqlInsertUser)) {
                 preparedStatementInsertUser.setString(1, name);
@@ -78,7 +78,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void removeUserById(long id) {
 
-        String sqlRemoveUserById = "delete from user where id = ?";
+        String sqlRemoveUserById = "delete from users where id = ?";
         try (Connection connection = Util.getConnection()) {
             try (PreparedStatement deleteUserPrepareStatement = connection.prepareStatement(sqlRemoveUserById)) {
                 connection.setAutoCommit(false);
@@ -97,7 +97,7 @@ public class UserDaoJDBCImpl implements UserDao {
         List<User> result = new ArrayList<>();
 
         try (Connection connection = Util.getConnection(); Statement statement = connection.createStatement()) {
-            String sqlGetAllUsers = "select id, name, lastName, age from user";
+            String sqlGetAllUsers = "select id, name, lastName, age from users";
             ResultSet resultSet = statement.executeQuery(sqlGetAllUsers);
 
             while (resultSet.next()) {
@@ -117,7 +117,7 @@ public class UserDaoJDBCImpl implements UserDao {
     public void cleanUsersTable() {
         try (Connection connection = Util.getConnection()) {
             try (Statement statement = connection.createStatement()) {
-                String sqlCleanUserTable = "delete from user";
+                String sqlCleanUserTable = "delete from users";
                 connection.setAutoCommit(false);
                 statement.executeUpdate(sqlCleanUserTable);
                 connection.commit();
